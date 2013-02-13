@@ -67,6 +67,7 @@
 
 %% Short Message sizes
 -define(SM_MAX_SIZE, 160).
+-define(SM_UNICODE_MAX_SEGMENT_SIZE, 134).
 -define(SM_MAX_SEGMENT_SIZE, 153).
 
 %% Timers default values

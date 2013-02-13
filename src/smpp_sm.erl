@@ -201,8 +201,13 @@ reply_source_address(Pdu) ->
 
 
 split(ParamList, RefNum, ConcatMethod) ->
-    split(ParamList, RefNum, ConcatMethod, ?SM_MAX_SEGMENT_SIZE).
-
+    SegmentSize = case proplists:get_value(data_coding, ParamList) of
+	    8 ->
+	        ?SM_UNICODE_MAX_SEGMENT_SIZE;
+	    _ ->
+	        ?SM_MAX_SEGMENT_SIZE
+    end,
+    split(ParamList, RefNum, ConcatMethod, SegmentSize).
 
 split(ParamList, RefNum, udh, MaxSegmentSize) ->
     SM = proplists:get_value(short_message, ParamList),

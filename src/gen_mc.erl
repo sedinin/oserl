@@ -1,31 +1,3 @@
-%%% Copyright (C) 2009 Enrique Marcote, Miguel Rodriguez
-%%% All rights reserved.
-%%%
-%%% Redistribution and use in source and binary forms, with or without
-%%% modification, are permitted provided that the following conditions are met:
-%%%
-%%% o Redistributions of source code must retain the above copyright notice,
-%%%   this list of conditions and the following disclaimer.
-%%%
-%%% o Redistributions in binary form must reproduce the above copyright notice,
-%%%   this list of conditions and the following disclaimer in the documentation
-%%%   and/or other materials provided with the distribution.
-%%%
-%%% o Neither the name of ERLANG TRAINING AND CONSULTING nor the names of its
-%%%   contributors may be used to endorse or promote products derived from this
-%%%   software without specific prior written permission.
-%%%
-%%% THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-%%% AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-%%% IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-%%% ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
-%%% LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-%%% CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
-%%% SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-%%% INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
-%%% CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
-%%% ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-%%% POSSIBILITY OF SUCH DAMAGE.
 -module(gen_mc).
 -behaviour(gen_server).
 -behaviour(gen_mc_session).
@@ -55,20 +27,8 @@
          outbind/5,
          unbind/3]).
 
-%%% QUEUE EXPORTS
--export([queue_data_sm/4,
-         queue_data_sm/5,
-         queue_deliver_sm/4,
-         queue_deliver_sm/5,
-         queue_len/2,
-         queue_out/2,
-         queue_out/3]).
-
 %%% LOG EXPORTS
 -export([add_log_handler/3, delete_log_handler/3, swap_log_handler/3]).
-
-%%% RPS EXPORTS
--export([pause/2, resume/2, rps/2, rps_avg/2, rps_max/2, rps_max/3]).
 
 %%% INIT/TERMINATE EXPORTS
 -export([init/1, terminate/2]).
@@ -88,13 +48,10 @@
          handle_resp/3,
          handle_unbind/2]).
 
-%%% MACROS
--define(PRIORITY, 10).
--define(RPS, 1000).
 -define(SECOND, 1000).
 
 %%% RECORDS
--record(session, {pid, ref, consumer, rps}).
+-record(session, {pid, ref, consumer}).
 
 -record(st, {mod, mod_st, sessions = [], listener, log, timers, lsock}).
 
@@ -211,34 +168,6 @@ outbind(SrvRef, Addr, Opts, Params, Timeout) ->
 unbind(SrvRef, Session, Args) ->
     gen_server:cast(SrvRef, {{{unbind, []}, Args}, Session}).
 
-%%%-----------------------------------------------------------------------------
-%%% QUEUE EXPORTS
-%%%-----------------------------------------------------------------------------
-queue_data_sm(SrvRef, Session, Params, Args) ->
-    queue_data_sm(SrvRef, Session, Params, Args, ?PRIORITY).
-
-queue_data_sm(SrvRef, Session, Params, Args, Priority) ->
-    queue(SrvRef, Session, {data_sm, Params}, Args, Priority).
-
-
-queue_deliver_sm(SrvRef, Session, Params, Args) ->
-    queue_deliver_sm(SrvRef, Session, Params, Args, ?PRIORITY).
-
-queue_deliver_sm(SrvRef, Session, Params, Args, Priority) ->
-    queue(SrvRef, Session, {deliver_sm, Params}, Args, Priority).
-
-
-queue_len(_SrvRef, Session) ->
-    QueueSrv = cl_queue_tab:lookup(Session),
-    cl_queue_srv:len(QueueSrv).
-
-
-queue_out(SrvRef, Session) ->
-    queue_out(SrvRef, Session, 1).
-
-queue_out(_SrvRef, Session, Num) ->
-    QueueSrv = cl_queue_tab:lookup(Session),
-    cl_queue_srv:out(QueueSrv, Num).
 
 %%%-----------------------------------------------------------------------------
 %%% LOG EXPORTS
@@ -254,33 +183,6 @@ delete_log_handler(SrvRef, Handler, Args) ->
 swap_log_handler(SrvRef, Handler1, Handler2) ->
     gen_server:call(SrvRef, {swap_log_handler, Handler1, Handler2}).
 
-%%%-----------------------------------------------------------------------------
-%%% RPS EXPORTS
-%%%-----------------------------------------------------------------------------
-pause(SrvRef, Session) ->
-    gen_server:call(SrvRef, {pause, Session}, ?ASSERT_TIME).
-
-
-resume(SrvRef, Session) ->
-    gen_server:cast(SrvRef, {resume, Session}).
-
-
-rps(_SrvRef, Session) ->
-    QueueSrv = cl_queue_tab:lookup(Session),
-    cl_queue_srv:rps(QueueSrv).
-
-
-rps_avg(_SrvRef, Session) ->
-    QueueSrv = cl_queue_tab:lookup(Session),
-    cl_queue_srv:rps_avg(QueueSrv).
-
-
-rps_max(SrvRef, Session) ->
-    gen_server:call(SrvRef, {rps_max, Session}, ?ASSERT_TIME).
-
-
-rps_max(SrvRef, Session, Rps) ->
-    gen_server:cast(SrvRef, {{rps_max, Rps}, Session}).
 
 %%%-----------------------------------------------------------------------------
 %%% INIT/TERMINATE EXPORTS
@@ -302,7 +204,6 @@ init({Mod, Args, Opts}) ->
         {error, Reason} ->
             {stop, Reason}
     end.
-
 
 terminate(Reason, St) ->
     (St#st.mod):terminate(Reason, St#st.mod_st),
@@ -342,22 +243,12 @@ handle_call({outbind, Opts, Params}, _From, St) ->
         Error ->
             {reply, Error, St}
     end;
-handle_call({pause, Pid}, _From, St) ->
-    Sss = session(Pid, St#st.sessions),
-    ok = cl_consumer:pause(Sss#session.consumer),
-    {reply, ok, St};
 handle_call({add_log_handler, Handler, Args}, _From, St) ->
     {reply, smpp_log_mgr:add_handler(St#st.log, Handler, Args), St};
 handle_call({delete_log_handler, Handler, Args}, _From, St) ->
     {reply, smpp_log_mgr:delete_handler(St#st.log, Handler, Args), St};
 handle_call({swap_log_handler, Handler1, Handler2}, _From, St) ->
     {reply, smpp_log_mgr:swap_handler(St#st.log, Handler1, Handler2), St};
-handle_call({rps, Pid}, _From, St) ->
-    Sss = session(Pid, St#st.sessions),
-    {reply, Sss#session.rps, St};
-handle_call({rps_max, Pid}, _From, St) ->
-    Sss = session(Pid, St#st.sessions),
-    {reply, Sss#session.rps, St};
 handle_call({{handle_unbind, Pdu}, Pid}, From, St) ->
     pack((St#st.mod):handle_unbind(Pid, Pdu, From, St#st.mod_st), St);
 handle_call({{handle_accept, Addr}, Pid}, From, #st{listener = Pid} = St) ->
@@ -389,30 +280,6 @@ handle_cast({{alert_notification, Params}, Pid}, St) ->
 handle_cast({{{unbind, Params}, Args}, Pid}, St) ->
     Ref = req_send(Pid, unbind, Params),
     pack((St#st.mod):handle_req(Pid, unbind, Args, Ref, St#st.mod_st), St);
-handle_cast({{rps, Rps}, Pid}, St) ->
-    Sss = session(Pid, St#st.sessions),
-    L = session_update(Sss#session{rps = Rps}, St#st.sessions),
-    {noreply, St#st{sessions = L}};
-handle_cast({resume, Pid}, St) ->
-    Sss = session(Pid, St#st.sessions),
-    try
-        true = is_process_alive(Sss#session.consumer),
-        ok = cl_consumer:resume(Sss#session.consumer),
-        {noreply, St}
-    catch
-        _Class:_NotRunning ->
-            QueueSrv = cl_queue_tab:lookup(Pid),
-            Mc = self(),
-            ReqFun = fun(X) -> gen_server:call(Mc, {X, Pid}, ?ASSERT_TIME) end,
-            {ok, C} = cl_consumer:start_link(QueueSrv, ReqFun, Sss#session.rps),
-            L = session_update(Sss#session{consumer = C}, St#st.sessions),
-            {noreply, St#st{sessions = L}}
-    end;
-handle_cast({{rps_max, Rps}, Pid}, St) ->
-    Sss = session(Pid, St#st.sessions),
-    ok = cl_consumer:rps(Sss#session.consumer, Rps),
-    L = session_update(Sss#session{rps = Rps}, St#st.sessions),
-    {noreply, St#st{sessions = L}};
 handle_cast({{handle_closed, Reason}, Pid}, St) ->
     NewSt = session_closed(Pid, St),
     pack((NewSt#st.mod):handle_closed(Pid, Reason, NewSt#st.mod_st), NewSt);
@@ -518,11 +385,6 @@ pack(Other, _St) ->
     Other.
 
 
-queue(_SrvRef, Session, Req, Args, Priority) ->
-    QueueSrv = cl_queue_tab:lookup(Session),
-    ok = cl_queue_srv:in(QueueSrv, {Req, Args}, Priority).
-
-
 ref_to_pid(Ref) when is_pid(Ref) ->
     Ref;
 ref_to_pid(Ref) when is_atom(Ref) ->
@@ -587,9 +449,7 @@ session_closed(Pid, St) ->
     try
         Sss = session(Pid, St#st.sessions),
         erlang:demonitor(Sss#session.ref, [flush]),
-        ok = cl_consumer:stop(Sss#session.consumer),
-        QueueSrv = cl_queue_tab:lookup(Pid),
-        ok = cl_queue_srv:stop(QueueSrv)
+        ok = cl_consumer:stop(Sss#session.consumer)
     catch
         _Class:_NotSession ->
             ok
@@ -602,18 +462,10 @@ session_delete(Pid, List) ->
     lists:keydelete(Pid, #session.pid, List).
 
 
-session_new(Pid, Opts) ->
+session_new(Pid, _Opts) ->
     Ref = erlang:monitor(process, Pid),
     unlink(Pid),
-    {ok, QueueSrv} = case proplists:get_value(file_queue, Opts) of
-                         undefined ->
-                             cl_queue_srv:start_link();
-                         File ->
-                             cl_queue_srv:start_link(File)
-                     end,
-    true = cl_queue_tab:insert(Pid, QueueSrv),
-    #session{pid = Pid, ref = Ref, rps = proplists:get_value(rps, Opts, ?RPS)}.
-
+    #session{pid = Pid, ref = Ref}.
 
 session_stop(Sss, Reason) ->
     try
@@ -624,6 +476,3 @@ session_stop(Sss, Reason) ->
             ok
     end.
 
-
-session_update(Sss, List) ->
-    lists:keyreplace(Sss#session.pid, #session.pid, List, Sss).
