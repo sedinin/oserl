@@ -55,7 +55,7 @@
          handle_unbind/2]).
 
 %%% RECORDS
--record(st, {mod, mod_st, ref, session, consumer, log}).
+-record(st, {mod, mod_st, ref, session, consumer, log, response_time}).
 
 %%%-----------------------------------------------------------------------------
 %%% BEHAVIOUR EXPORTS
@@ -197,8 +197,9 @@ swap_log_handler(SrvRef, Handler1, Handler2) ->
 %%% INIT/TERMINATE EXPORTS
 %%%-----------------------------------------------------------------------------
 init({Mod, Args, _Opts}) ->
+    ResponseTime = proplists:get_value(response_time, Args, ?RESPONSE_TIME div 1000),
     {ok, Log} = smpp_log_mgr:start_link(),
-    St = #st{mod = Mod, log = Log},
+    St = #st{mod = Mod, log = Log, response_time = timer:seconds(ResponseTime)},
     pack((St#st.mod):init(Args), St).
 
 terminate(Reason, St) ->
@@ -210,7 +211,8 @@ terminate(Reason, St) ->
 handle_call({call, Req}, From, St) ->
     pack((St#st.mod):handle_call(Req, From, St#st.mod_st), St);
 handle_call({start_session, Opts}, _From, St) ->
-    case gen_esme_session:start_link(?MODULE,  [{log, St#st.log} | Opts]) of
+    NewOpts = [{log, St#st.log}, {timers, #timers_smpp{response_time = St#st.response_time}} | Opts],
+    case gen_esme_session:start_link(?MODULE,  NewOpts) of
         {ok, Pid} ->
             Ref = erlang:monitor(process, Pid),
             unlink(Pid),
