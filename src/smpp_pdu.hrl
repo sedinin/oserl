@@ -189,7 +189,10 @@
               ?SOURCE_TELEMATICS_ID,
               ?USER_MESSAGE_REFERENCE,
               ?USER_RESPONSE_CODE,        % (CDMA, TDMA)
-              ?USSD_SERVICE_OP])).
+              ?USSD_SERVICE_OP,
+              ?LIFE_BILLING_FLAG,
+              ?OVERSUN_MO_ID,
+              ?OVERSUN_BILLING_FLAG])).
 
 -define(SUBMIT_SM_RESP,
         ?PDU([?MESSAGE_ID],
@@ -254,7 +257,10 @@
               ?SOURCE_TELEMATICS_ID,
               ?USER_MESSAGE_REFERENCE,
               ?USER_RESPONSE_CODE,        % (CDMA, TDMA)
-              ?USSD_SERVICE_OP])).
+              ?USSD_SERVICE_OP,
+              ?LIFE_BILLING_FLAG,
+              ?OVERSUN_MO_ID,
+              ?OVERSUN_BILLING_FLAG])).
 
 -define(DATA_SM_RESP,
         ?PDU([?MESSAGE_ID],
@@ -325,7 +331,10 @@
               ?SOURCE_TELEMATICS_ID,
               ?USER_MESSAGE_REFERENCE,
               ?USER_RESPONSE_CODE,        % (CDMA, TDMA)
-              ?USSD_SERVICE_OP])).
+              ?USSD_SERVICE_OP,
+              ?LIFE_BILLING_FLAG,
+              ?OVERSUN_MO_ID,
+              ?OVERSUN_BILLING_FLAG])).
 
 %% Unlike some simulators, like SMPPSim 1.1, which they ignore the field
 %% ``no_unsuccess`` if no destination was unsuccessful, this
@@ -430,7 +439,10 @@
               ?SOURCE_SUBADDRESS,         % (CDMA, TDMA)
               ?USER_MESSAGE_REFERENCE,
               ?USER_RESPONSE_CODE,        % (CDMA, TDMA)
-              ?USSD_SERVICE_OP])).
+              ?USSD_SERVICE_OP,
+              ?LIFE_BILLING_FLAG,
+              ?OVERSUN_MO_ID,
+              ?OVERSUN_BILLING_FLAG])).
 
 -define(DELIVER_SM_RESP,
         ?PDU([?MESSAGE_ID],

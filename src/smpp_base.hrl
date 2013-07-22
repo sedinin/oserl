@@ -995,6 +995,15 @@
         ?UNION([?RANGE_INTEGER(1,  4,  15),
                 ?RANGE_INTEGER(1, 20,  31)])).
 
+-define(LIFE_BILLING_OP_DOMAIN, ?INTEGER(2)).
+-define(LIFE_BILLING_SEQNUM_RESERVED, ?EMPTY).
+
+-define(OVERSUN_MO_ID_DOMAIN, ?INTEGER(2)).
+-define(OVERSUN_MO_ID_RESERVED, ?EMPTY).
+
+-define(OVERSUN_BILLING_FLAG_DOMAIN, ?INTEGER(2)).
+-define(OVERSUN_BILLING_FLAG_RESERVED, ?EMPTY).
+
 %%%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%% Standard and TLV Composite Parameters Value Definitions
 %%%

@@ -1591,5 +1591,44 @@
                     undefined,
                     undefined)).
 
+%% life_billing_flag
+%%
+%% %@doc Life operator billing flag
+%%
+%% %@end
+-define(LIFE_BILLING_FLAG,
+        ?SIMPLE_TLV(life_billing_flag,
+                    16#2010,
+                    ?LIFE_BILLING_OP_DOMAIN,
+                    ?LIFE_BILLING_SEQNUM_RESERVED,
+                    undefined,
+                    undefined)).
+
+%% oversun_mo_id
+%%
+%% %@doc Oversuns smppgw specific TLV
+%%
+%% %@end
+-define(OVERSUN_MO_ID,
+        ?SIMPLE_TLV(life_billing_flag,
+                    16#1600,
+                    ?OVERSUN_MO_ID_DOMAIN,
+                    ?OVERSUN_MO_ID_RESERVED,
+                    undefined,
+                    undefined)).
+
+%% oversun_billing_flag
+%%
+%% %@doc Oversun MT billing flag
+%%
+%% %@end
+-define(OVERSUN_BILLING_FLAG,
+        ?SIMPLE_TLV(oversun_billing_flag,
+                    16#1601,
+                    ?OVERSUN_BILLING_FLAG_DOMAIN,
+                    ?OVERSUN_BILLING_FLAG_RESERVED,
+                    undefined,
+                    undefined)).
+
 -endif.  % -ifndef(smpp_param)
 
