@@ -1004,8 +1004,8 @@
 -define(OVERSUN_BILLING_FLAG_DOMAIN, ?INTEGER(2)).
 -define(OVERSUN_BILLING_FLAG_RESERVED, ?EMPTY).
 
--define(OVERSUN_EXTENDED_STATUS_DOMAIN, ?INTEGER(2)).
--define(OVERSUN_EXTENDED_STATUS_RESERVED, ?EMPTY).
+-define(OVERSUN_EXTENDED_STATE_DOMAIN, ?INTEGER(2)).
+-define(OVERSUN_EXTENDED_STATE_RESERVED, ?EMPTY).
 
 %%%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%% Standard and TLV Composite Parameters Value Definitions

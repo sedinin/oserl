@@ -1635,11 +1635,11 @@
 %% %@doc Oversun extended MT status
 %%
 %% %@end
--define(OVERSUN_EXTENDED_STATUS,
-        ?SIMPLE_TLV(oversun_extended_status,
+-define(OVERSUN_EXTENDED_STATE,
+        ?SIMPLE_TLV(oversun_extended_state,
                     16#1602,
-                    ?OVERSUN_EXTENDED_STATUS_DOMAIN,
-                    ?OVERSUN_EXTENDED_STATUS_RESERVED,
+                    ?OVERSUN_EXTENDED_STATE_DOMAIN,
+                    ?OVERSUN_EXTENDED_STATE_RESERVED,
                     undefined,
                     undefined)).
 
