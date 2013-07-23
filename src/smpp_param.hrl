@@ -1630,5 +1630,18 @@
                     undefined,
                     undefined)).
 
+%% oversun_extended_status
+%%
+%% %@doc Oversun extended MT status
+%%
+%% %@end
+-define(OVERSUN_EXTENDED_STATUS,
+        ?SIMPLE_TLV(oversun_extended_status,
+                    16#1602,
+                    ?OVERSUN_EXTENDED_STATUS_DOMAIN,
+                    ?OVERSUN_EXTENDED_STATUS_RESERVED,
+                    undefined,
+                    undefined)).
+
 -endif.  % -ifndef(smpp_param)
 
