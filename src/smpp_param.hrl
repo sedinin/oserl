@@ -1610,7 +1610,7 @@
 %%
 %% %@end
 -define(OVERSUN_MO_ID,
-        ?SIMPLE_TLV(life_billing_flag,
+        ?SIMPLE_TLV(oversun_mo_id,
                     16#1600,
                     ?OVERSUN_MO_ID_DOMAIN,
                     ?OVERSUN_MO_ID_RESERVED,
