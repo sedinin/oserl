@@ -1643,5 +1643,18 @@
                     undefined,
                     undefined)).
 
+%% oversun_operator_id
+%%
+%% %@doc Oversun operator id for delivery_sm
+%%
+%% %@end
+-define(OVERSUN_OPERATOR_ID,
+        ?SIMPLE_TLV(oversun_operator_id,
+                    16#1603,
+                    ?OVERSUN_OPERATOR_ID_DOMAIN,
+                    ?OVERSUN_OPERATOR_ID_RESERVED,
+                    undefined,
+                    undefined)).
+
 -endif.  % -ifndef(smpp_param)
 

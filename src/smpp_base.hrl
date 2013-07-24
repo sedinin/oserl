@@ -998,14 +998,17 @@
 -define(LIFE_BILLING_OP_DOMAIN, ?INTEGER(2)).
 -define(LIFE_BILLING_SEQNUM_RESERVED, ?EMPTY).
 
--define(OVERSUN_MO_ID_DOMAIN, ?INTEGER(2)).
+-define(OVERSUN_MO_ID_DOMAIN, ?INTEGER(4)).
 -define(OVERSUN_MO_ID_RESERVED, ?EMPTY).
 
--define(OVERSUN_BILLING_FLAG_DOMAIN, ?INTEGER(2)).
+-define(OVERSUN_BILLING_FLAG_DOMAIN, ?INTEGER(1)).
 -define(OVERSUN_BILLING_FLAG_RESERVED, ?EMPTY).
 
--define(OVERSUN_EXTENDED_STATE_DOMAIN, ?INTEGER(2)).
+-define(OVERSUN_EXTENDED_STATE_DOMAIN, ?INTEGER(1)).
 -define(OVERSUN_EXTENDED_STATE_RESERVED, ?EMPTY).
+
+-define(OVERSUN_OPERATOR_ID_DOMAIN, ?INTEGER(1)).
+-define(OVERSUN_OPERATOR_ID_RESERVED, ?EMPTY).
 
 %%%- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 %%% Standard and TLV Composite Parameters Value Definitions

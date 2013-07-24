@@ -443,7 +443,8 @@
               ?LIFE_BILLING_FLAG,
               ?OVERSUN_MO_ID,
               ?OVERSUN_BILLING_FLAG,
-              ?OVERSUN_EXTENDED_STATE])).
+              ?OVERSUN_EXTENDED_STATE,
+              ?OVERSUN_OPERATOR_ID])).
 
 -define(DELIVER_SM_RESP,
         ?PDU([?MESSAGE_ID],
